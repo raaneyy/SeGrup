@@ -14,6 +14,27 @@ class SeGrupLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (showHalo) {
+      return Image.asset(
+        'assets/images/segrup_logo.png',
+        width: size * 2.2,
+        height: size * 2.2,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _fallbackLogo(context),
+      );
+    }
+
+    // Tampilan logo emblem (Login, Register, dll)
+    return Image.asset(
+      'assets/images/segrup_logo_icon.png',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => _fallbackLogo(context),
+    );
+  }
+
+  Widget _fallbackLogo(BuildContext context) {
     final coreLogo = Stack(
       clipBehavior: Clip.none,
       children: [

@@ -266,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 18),
 
-              // Tombol Akun Google Kampus
+              // Tombol Akun Google
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'Akun Google Kampus',
+                        'Akun Google',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

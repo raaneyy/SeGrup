@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/launch_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class SeGrupApp extends StatelessWidget {
       title: 'SeGrup',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(), // Memulai dari Splash Screen
+      home: const LaunchScreen(), // Memulai dari Launch Screen Beranimasi
     );
   }
 }

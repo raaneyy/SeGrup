@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               const Spacer(flex: 2),
 
-              // Logo dengan Halo Lingkaran (Sesuai Gambar 1)
+              // Logo dengan Halo Lingkaran (Menggunakan Gambar Asli)
               ScaleTransition(
                 scale: _logoAnimation,
                 child: FadeTransition(
@@ -174,7 +174,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 12),
 
-              // Tombol Daftar Akun Baru (Outlined Putih)
+              // Tombol Daftar Akun Baru (Outlined)
               _fadeAndSlide(
                 _registerButtonAnimation,
                 SizedBox(
@@ -190,9 +190,9 @@ class _SplashScreenState extends State<SplashScreen>
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
                       foregroundColor: AppColors.unguUtama,
-                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      side: const BorderSide(color: Color(0xFFC7D2FE), width: 1.5),
+                      backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -202,13 +202,12 @@ class _SplashScreenState extends State<SplashScreen>
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.unguUtama,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
             ],
           ),
         ),

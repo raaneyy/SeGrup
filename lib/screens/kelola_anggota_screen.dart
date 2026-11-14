@@ -32,7 +32,7 @@ class _KelolaAnggotaScreenState extends State<KelolaAnggotaScreen> {
     MemberModel(
       name: 'Cheesy Esterani',
       role: 'Anggota',
-      initials: 'RP',
+      initials: 'CE',
       avatarBgColor: AppColors.successBg,
     ),
     MemberModel(
@@ -965,6 +965,8 @@ class _KelolaAnggotaScreenState extends State<KelolaAnggotaScreen> {
                                 member.name == 'Cheesy Esterani'));
                     // Hanya role Manager Proyek yang dapat menghapus anggota
                     final bool canDelete = isPm && !isCurrent;
+                    // Pada role Anggota, hapus icon pencil kecuali akun dia sendiri
+                    final bool canEdit = isPm || isCurrent;
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(
@@ -1060,35 +1062,25 @@ class _KelolaAnggotaScreenState extends State<KelolaAnggotaScreen> {
                               tooltip:
                                   'Keluarkan anggota (Khusus Manager Proyek)',
                             ),
-                          IconButton(
-                            onPressed: () {
-                              if (isPm) {
-                                _showKelolaAnggotaDialog(member);
-                              } else if (isCurrent) {
-                                _showEditDataDialog(member);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Hanya Manager Proyek yang dapat mengubah data anggota lain.',
-                                    ),
-                                    duration: Duration(seconds: 2),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.edit_outlined,
-                              size: 20,
-                              color: AppColors.textMuted,
+                          // Pada role anggota, ikon pensil hanya tampil pada akunnya sendiri
+                          if (canEdit)
+                            IconButton(
+                              onPressed: () {
+                                if (isPm && !isCurrent) {
+                                  _showKelolaAnggotaDialog(member);
+                                } else {
+                                  _showEditDataDialog(member);
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                size: 20,
+                                color: AppColors.textMuted,
+                              ),
+                              tooltip: isCurrent
+                                  ? 'Edit data Anda'
+                                  : 'Kelola anggota',
                             ),
-                            tooltip: isPm
-                                ? 'Kelola anggota'
-                                : (isCurrent
-                                      ? 'Edit data Anda'
-                                      : 'Info anggota'),
-                          ),
                         ],
                       ),
                     );

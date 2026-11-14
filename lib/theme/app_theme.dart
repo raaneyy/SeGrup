@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// ============================================================================
-/// 1. PALET WARNA (Sesuai Style Guide SeGrup)
-/// ============================================================================
+/// 1. PALET WARNA (Sesuai Style Guide SeGrup
 class AppColors {
   // Brand & aksen
   static const Color unguUtama = Color(0xFF3121B1); // Primary SeGrup

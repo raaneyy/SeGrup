@@ -12,13 +12,10 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  // Filter untuk Manager Proyek: 'Menunggu', 'Revisi', 'Disetujui'
   String _managerFilter = 'Menunggu';
 
-  // Task yang sedang dibuka detail validasinya (null jika sedang di halaman list)
   Map<String, dynamic>? _selectedValidationTask;
 
-  // Filter untuk Anggota Biasa
   bool _isTeamTabAnggota = false;
   String _selectedFilterAnggota = 'ALL';
   final List<String> _filtersAnggota = [
@@ -29,7 +26,6 @@ class _TasksScreenState extends State<TasksScreen> {
     'TO DO',
   ];
 
-  // Data Validasi Manager Proyek (Sesuai Gambar 1 & Gambar 2)
   final List<Map<String, dynamic>> _validationTasks = [
     {
       'id': 'val_1',
@@ -126,7 +122,6 @@ class _TasksScreenState extends State<TasksScreen> {
     },
   ];
 
-  // Data Tugas Tim (Untuk Anggota Biasa)
   final List<Map<String, dynamic>> _teamTasks = [
     {
       'title': 'Proyek Akhir Web',
@@ -184,397 +179,551 @@ class _TasksScreenState extends State<TasksScreen> {
     _newTaskDescriptionController.clear();
     final formKey = GlobalKey<FormState>();
     final currentUser = AppRoleState.instance.currentUser;
-    final assignees = <String>{
+    final assignees = [
+      'Nadia Putri',
+      'Rizky Pratama',
+      'Siti Aisyah',
+      'Dimas Saputra',
+      'Aulia Rahma',
+      'Adinda',
       currentUser.name,
-      ..._teamTasks.map((task) => task['pj'] as String),
-    }.toList();
-    DateTime? deadline;
-    String? selectedAssignee;
-    var selectedPriority = 'Sedang';
+    ].toSet().toList();
+    DateTime selectedDeadline = DateTime.now().add(const Duration(days: 7));
+    String selectedAssignee = assignees.first;
+    String selectedPriority = 'Sedang';
     const priorities = ['Rendah', 'Sedang', 'Tinggi'];
-    const inputBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(color: AppColors.border),
-    );
 
-    final task = await showDialog<Map<String, dynamic>>(
+    final task = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        backgroundColor: Colors.transparent,
-        child: StatefulBuilder(
-          builder: (context, setDialogState) => Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(context).height * 0.84,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 16, 8),
-                  child: Row(
+      useRootNavigator: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (modalContext, setModalState) {
+            return Container(
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(modalContext).padding.top + 32,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(modalContext).viewInsets.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Expanded(
-                        child: Text(
-                          'Tambah tugas proyek',
-                          style: TextStyle(
-                            fontSize: 21,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.teksUtama,
+                      Center(
+                        child: Container(
+                          margin: const EdgeInsets.only(top: 12, bottom: 8),
+                          width: 44,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE2E8F0),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                      IconButton(
-                        tooltip: 'Tutup',
-                        onPressed: () => Navigator.pop(dialogContext),
-                        icon: const Icon(
-                          Icons.close,
-                          color: AppColors.teksSekunder,
+
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 16, 12),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F0FF),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.add_task_rounded,
+                                color: AppColors.unguUtama,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tambah Tugas Proyek',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.teksUtama,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Smart Reading Tracker',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      color: AppColors.teksSekunder,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  Navigator.pop(bottomSheetContext),
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: AppColors.teksSekunder,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Atur detail tugas untuk tim proyekmu.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.teksSekunder,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Form(
-                    key: formKey,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F0FF),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Column(
+                      const Divider(height: 1, color: AppColors.border),
+
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                          child: Form(
+                            key: formKey,
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'PROYEK',
+                                const Text(
+                                  'Nama Tugas *',
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.teksSekunder,
+                                    color: AppColors.teksUtama,
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Smart Reading Tracker',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.unguUtama,
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _newTaskTitleController,
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        'Misal: Perancangan High-Fidelity UI',
+                                    hintStyle: const TextStyle(
+                                      color: AppColors.teksRedup,
+                                      fontSize: 13.5,
+                                    ),
+                                    filled: true,
+                                    fillColor: const Color(0xFFF9F9FC),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 14,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.unguUtama,
+                                        width: 1.5,
+                                      ),
+                                    ),
                                   ),
+                                  validator: (val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return 'Nama tugas wajib diisi';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Penanggung Jawab',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.teksUtama,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    DropdownButtonFormField<String>(
+                                      value: selectedAssignee,
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: const Color(0xFFF9F9FC),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 14,
+                                            ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: AppColors.border,
+                                          ),
+                                        ),
+                                      ),
+                                      items: assignees
+                                          .map(
+                                            (name) => DropdownMenuItem(
+                                              value: name,
+                                              child: Text(
+                                                name,
+                                                style: const TextStyle(
+                                                  fontSize: 12.5,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          setModalState(
+                                            () => selectedAssignee = val,
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                const Text(
+                                  'Tenggat Waktu *',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.teksUtama,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                InkWell(
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: modalContext,
+                                      initialDate: selectedDeadline,
+                                      firstDate: DateTime.now().subtract(
+                                        const Duration(days: 1),
+                                      ),
+                                      lastDate: DateTime(2030),
+                                      builder: (ctx, child) {
+                                        return Theme(
+                                          data: Theme.of(ctx).copyWith(
+                                            colorScheme:
+                                                const ColorScheme.light(
+                                                  primary: AppColors.unguUtama,
+                                                ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+                                    if (picked != null) {
+                                      setModalState(
+                                        () => selectedDeadline = picked,
+                                      );
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 14,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF9F9FC),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          _formatTaskDeadline(selectedDeadline),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.teksUtama,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.calendar_month_rounded,
+                                          color: AppColors.unguUtama,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                const Text(
+                                  'Deskripsi Tugas (Opsional)',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.teksUtama,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _newTaskDescriptionController,
+                                  maxLines: 3,
+                                  decoration: InputDecoration(
+                                    hintText: 'Tuliskan instruksi atau catatan khusus pengerjaan...',
+                                    hintStyle: const TextStyle(
+                                      color: AppColors.teksRedup,
+                                      fontSize: 13,
+                                    ),
+                                    filled: true,
+                                    fillColor: const Color(0xFFF9F9FC),
+                                    contentPadding: const EdgeInsets.all(14),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.unguUtama,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                const Text(
+                                  'Prioritas',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.teksUtama,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: priorities.map((p) {
+                                    final isSelected = selectedPriority == p;
+                                    Color pColor = AppColors.unguUtama;
+                                    if (p == 'Tinggi') {
+                                      pColor = const Color(0xFFDC2626);
+                                    } else if (p == 'Rendah') {
+                                      pColor = const Color(0xFF059669);
+                                    }
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: p == priorities.last ? 0 : 8,
+                                        ),
+                                        child: InkWell(
+                                          onTap: () => setModalState(
+                                            () => selectedPriority = p,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Container(
+                                            height: 42,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: isSelected
+                                                  ? pColor.withValues(
+                                                      alpha: 0.1,
+                                                    )
+                                                  : const Color(0xFFF9F9FC),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                color: isSelected
+                                                    ? pColor
+                                                    : AppColors.border,
+                                                width: isSelected ? 1.5 : 1,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              p,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.w700
+                                                    : FontWeight.w500,
+                                                color: isSelected
+                                                    ? pColor
+                                                    : AppColors.teksSekunder,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'Nama tugas *',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.teksUtama,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            key: const ValueKey('new-task-title'),
-                            controller: _newTaskTitleController,
-                            autofocus: true,
-                            decoration: const InputDecoration(
-                              hintText: 'Masukkan nama tugas',
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 15,
-                              ),
-                              border: inputBorder,
-                              enabledBorder: inputBorder,
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
-                                borderSide: BorderSide(
-                                  color: AppColors.unguUtama,
-                                  width: 1.5,
-                                ),
-                              ),
-                            ),
-                            validator: (value) =>
-                                value == null || value.trim().isEmpty
-                                ? 'Nama tugas wajib diisi.'
-                                : null,
-                          ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'Deskripsi (opsional)',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.teksUtama,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _newTaskDescriptionController,
-                            minLines: 3,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              hintText:
-                                  'Tuliskan detail atau instruksi tugas...',
-                              contentPadding: EdgeInsets.all(16),
-                              border: inputBorder,
-                              enabledBorder: inputBorder,
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
-                                borderSide: BorderSide(
-                                  color: AppColors.unguUtama,
-                                  width: 1.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'Tenggat *',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.teksUtama,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          FormField<DateTime>(
-                            validator: (value) =>
-                                value == null ? 'Tenggat wajib dipilih.' : null,
-                            builder: (field) => InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: () async {
-                                final today = DateUtils.dateOnly(
-                                  DateTime.now(),
-                                );
-                                final pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: today.add(
-                                    const Duration(days: 7),
-                                  ),
-                                  firstDate: today,
-                                  lastDate: DateTime(2100),
-                                );
-                                if (pickedDate != null) {
-                                  deadline = pickedDate;
-                                  field.didChange(pickedDate);
-                                }
-                              },
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  hintText: 'Pilih tanggal',
-                                  errorText: field.errorText,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 15,
-                                  ),
-                                  border: inputBorder,
-                                  enabledBorder: inputBorder,
-                                  focusedBorder: inputBorder,
-                                ),
-                                child: Text(
-                                  field.value == null
-                                      ? 'Pilih tanggal'
-                                      : _formatTaskDeadline(field.value!),
-                                  style: TextStyle(
-                                    color: field.value == null
-                                        ? AppColors.teksSekunder
-                                        : AppColors.teksUtama,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'Penanggung jawab',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.teksUtama,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            initialValue: selectedAssignee,
-                            isExpanded: true,
-                            hint: const Text('Pilih Anggota Tim'),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              border: inputBorder,
-                              enabledBorder: inputBorder,
-                              focusedBorder: inputBorder,
-                            ),
-                            items: assignees
-                                .map(
-                                  (name) => DropdownMenuItem(
-                                    value: name,
-                                    child: Text(name),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) =>
-                                setDialogState(() => selectedAssignee = value),
-                          ),
-                          const SizedBox(height: 18),
-                          const Text(
-                            'Prioritas',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.teksUtama,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: priorities.map((priority) {
-                              final isSelected = selectedPriority == priority;
-                              return Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    right: priority == priorities.last ? 0 : 8,
-                                  ),
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(10),
-                                    onTap: () => setDialogState(
-                                      () => selectedPriority = priority,
-                                    ),
-                                    child: Container(
-                                      height: 44,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? const Color(0xFFF3F0FF)
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: isSelected
-                                              ? AppColors.unguUtama
-                                              : AppColors.border,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        priority,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: isSelected
-                                              ? FontWeight.w600
-                                              : FontWeight.w400,
-                                          color: isSelected
-                                              ? AppColors.unguUtama
-                                              : AppColors.teksSekunder,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const Divider(height: 1, color: AppColors.border),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(dialogContext),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.teksSekunder,
-                            minimumSize: const Size.fromHeight(48),
-                            shape: const StadiumBorder(),
-                            side: const BorderSide(color: AppColors.border),
-                          ),
-                          child: const Text('Batal'),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              Navigator.pop(dialogContext, {
-                                'title': _newTaskTitleController.text.trim(),
-                                'description': _newTaskDescriptionController
-                                    .text
-                                    .trim(),
-                                'deadline': deadline!,
-                                'assignee':
-                                    selectedAssignee ?? currentUser.name,
-                                'priority': selectedPriority,
-                              });
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.unguUtama,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size.fromHeight(48),
-                            shape: const StadiumBorder(),
+
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: AppColors.border),
                           ),
-                          child: const Text('+ Tambah tugas'),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: OutlinedButton(
+                                onPressed: () =>
+                                    Navigator.pop(bottomSheetContext),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  side: const BorderSide(
+                                    color: AppColors.border,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Batal',
+                                  style: TextStyle(
+                                    color: AppColors.teksUtama,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 3,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    Navigator.pop(bottomSheetContext, {
+                                      'title': _newTaskTitleController.text
+                                          .trim(),
+                                      'category': 'UMUM',
+                                      'description':
+                                          _newTaskDescriptionController.text
+                                              .trim(),
+                                      'deadline': selectedDeadline,
+                                      'assignee': selectedAssignee,
+                                      'priority': selectedPriority,
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.unguUtama,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '+ Simpan Tugas',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
 
     if (task == null || !mounted) return;
 
+    final formattedDeadline = _formatTaskDeadline(task['deadline'] as DateTime);
+
     setState(() {
       _teamTasks.insert(0, {
         'title': task['title'],
+        'category': task['category'],
         'description': task['description'],
         'pj': task['assignee'],
-        'deadline': _formatTaskDeadline(task['deadline'] as DateTime),
+        'deadline': formattedDeadline,
         'priority': task['priority'],
         'status': 'TO DO',
       });
       _isTeamTabAnggota = true;
       _selectedFilterAnggota = 'ALL';
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Tugas "${task['title']}" berhasil ditambahkan!',
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.unguUtama,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   String _formatTaskDeadline(DateTime date) {
@@ -602,7 +751,6 @@ class _TasksScreenState extends State<TasksScreen> {
       builder: (context, _) {
         final isManager = AppRoleState.instance.isManager;
 
-        // Jika POV Manager Proyek, tampilkan tampilan validasi (Gambar 1 & Gambar 2)
         if (isManager) {
           if (_selectedValidationTask != null) {
             return _buildDetailValidasiScreen(_selectedValidationTask!);
@@ -610,21 +758,17 @@ class _TasksScreenState extends State<TasksScreen> {
           return _buildValidasiHasilKerjaScreen();
         }
 
-        // Jika POV Anggota Biasa, tampilkan tampilan pengerjaan tugas anggota
         return _buildAnggotaTasksScreen();
       },
     );
   }
 
-  // ===========================================================================
-  // 1. TAMPILAN MANAGER PROYEK: DAFTAR VALIDASI (GAMBAR 1)
-  // ===========================================================================
   Widget _buildValidasiHasilKerjaScreen() {
     final waitingCount = _validationTasks
         .where((t) => t['status'] == 'Menunggu')
         .length;
-    final revisionCount = 2; // Sesuai desain Gambar 1: Revisi (2)
-    final approvedCount = 7; // Sesuai desain Gambar 1: Disetujui (7)
+    final revisionCount = 2;
+    final approvedCount = 7;
 
     final filteredList = _validationTasks.where((task) {
       if (_managerFilter == 'Menunggu') return task['status'] == 'Menunggu';
@@ -640,26 +784,6 @@ class _TasksScreenState extends State<TasksScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Badge MANAGER PROYEK
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F0FF),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'MANAGER PROYEK',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.unguUtama,
-                  letterSpacing: 0.6,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Judul & Subjudul
             const Text(
               'Validasi hasil kerja',
               style: TextStyle(
@@ -676,12 +800,11 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 18),
 
-            // Kartu PROYEK AKTIF (Smart Reading Tracker)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.unguUtama, // 0xFF3121B1
+                color: AppColors.unguUtama,
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: const [
                   BoxShadow(
@@ -722,7 +845,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Tab Filter: Menunggu (3), Revisi (2), Disetujui (7)
             Row(
               children: [
                 _buildManagerFilterChip('Menunggu ($waitingCount)', 'Menunggu'),
@@ -737,11 +859,10 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 22),
 
-            // Header Daftar: Perlu ditinjau | Terbaru lebih dulu
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Perlu ditinjau',
                   style: TextStyle(
                     fontSize: 16,
@@ -749,15 +870,43 @@ class _TasksScreenState extends State<TasksScreen> {
                     color: AppColors.teksUtama,
                   ),
                 ),
-                Text(
-                  'Terbaru lebih dulu',
-                  style: TextStyle(fontSize: 12, color: AppColors.teksSekunder),
+                InkWell(
+                  onTap: _showNewTaskDialog,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F0FF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add_rounded,
+                          size: 16,
+                          color: AppColors.unguUtama,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Tugas Baru',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.unguUtama,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
 
-            // Daftar Kartu Tugas yang Perlu Ditinjau
             if (filteredList.isEmpty)
               Container(
                 width: double.infinity,
@@ -789,6 +938,16 @@ class _TasksScreenState extends State<TasksScreen> {
             else
               ...filteredList.map((task) => _buildValidationTaskCard(task)),
           ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showNewTaskDialog,
+        backgroundColor: AppColors.unguUtama,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_task_rounded, size: 20),
+        label: const Text(
+          'Tugas Baru',
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -844,7 +1003,6 @@ class _TasksScreenState extends State<TasksScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Kartu: Kategori & Status Badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -879,7 +1037,6 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 10),
 
-          // Judul Tugas
           Text(
             task['title'] as String,
             style: const TextStyle(
@@ -890,7 +1047,6 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 6),
 
-          // Nama Anggota
           Text(
             task['memberName'] as String,
             style: const TextStyle(
@@ -901,14 +1057,12 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 2),
 
-          // Waktu Pengiriman
           Text(
             task['submittedTime'] as String,
             style: const TextStyle(fontSize: 12, color: AppColors.teksSekunder),
           ),
           const SizedBox(height: 12),
 
-          // Kotak Catatan / Feedback Anggota
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -927,7 +1081,6 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Lampiran Berkas & Tenggat
           Text(
             task['filesSummary'] as String,
             style: const TextStyle(
@@ -943,7 +1096,6 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Tombol Tinjau Hasil
           SizedBox(
             width: double.infinity,
             height: 46,
@@ -973,9 +1125,6 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
-  // ===========================================================================
-  // 2. TAMPILAN MANAGER PROYEK: DETAIL VALIDASI (GAMBAR 2)
-  // ===========================================================================
   Widget _buildDetailValidasiScreen(Map<String, dynamic> task) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
@@ -984,7 +1133,6 @@ class _TasksScreenState extends State<TasksScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tombol < Kembali ke daftar validasi
             InkWell(
               onTap: () => setState(() => _selectedValidationTask = null),
               borderRadius: BorderRadius.circular(8),
@@ -1013,7 +1161,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Judul & Subjudul
             const Text(
               'Detail validasi',
               style: TextStyle(
@@ -1030,7 +1177,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 18),
 
-            // KARTU 1: Detail Tugas & Anggota
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
@@ -1042,7 +1188,6 @@ class _TasksScreenState extends State<TasksScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badges: Menunggu validasi & Revisi ke-2
                   Row(
                     children: [
                       Container(
@@ -1086,7 +1231,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Judul & Subjudul Tugas
                   Text(
                     task['title'] as String,
                     style: const TextStyle(
@@ -1105,7 +1249,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // Kotak Info Anggota
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -1137,7 +1280,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // Meta waktu
                   Text(
                     task['submittedTime'] as String,
                     style: const TextStyle(
@@ -1158,7 +1300,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 16),
 
-            // KARTU 2: Hasil yang dikirim
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
@@ -1209,7 +1350,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Lampiran 1: Figma
                   _buildAttachmentCard(
                     badge: 'FIG',
                     title: 'SeGrup Mobile System V2',
@@ -1227,7 +1367,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Lampiran 2: PDF
                   _buildAttachmentCard(
                     badge: 'PDF',
                     title: 'Catatan_Review_UI.pdf',
@@ -1246,7 +1385,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 16),
 
-            // KARTU 3: Catatan sebelumnya
             if (task['previousNote'] != null) ...[
               Container(
                 width: double.infinity,
@@ -1299,7 +1437,6 @@ class _TasksScreenState extends State<TasksScreen> {
               const SizedBox(height: 16),
             ],
 
-            // KARTU 4: Keputusan validasi
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
@@ -1330,7 +1467,6 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // TextField Catatan
                   TextField(
                     controller: _reviewNoteController,
                     maxLines: 4,
@@ -1373,10 +1509,8 @@ class _TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 18),
 
-                  // Dua Tombol Aksi: Minta revisi & Setujui hasil
                   Row(
                     children: [
-                      // Tombol Minta revisi
                       Expanded(
                         child: SizedBox(
                           height: 48,
@@ -1437,7 +1571,6 @@ class _TasksScreenState extends State<TasksScreen> {
                       ),
                       const SizedBox(width: 12),
 
-                      // Tombol Setujui hasil
                       Expanded(
                         child: SizedBox(
                           height: 48,
@@ -1548,9 +1681,6 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
-  // ===========================================================================
-  // 3. TAMPILAN ANGGOTA BIASA (PENGERJAAN & PENGUNGGAHAN)
-  // ===========================================================================
   Widget _buildAnggotaTasksScreen() {
     final filteredTeamTasks = _selectedFilterAnggota == 'ALL'
         ? _teamTasks
@@ -1565,26 +1695,6 @@ class _TasksScreenState extends State<TasksScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Badge ANGGOTA
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDCFCE7),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'ANGGOTA TIM',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF15803D),
-                  letterSpacing: 0.6,
-                ),
-              ),
-            ),
-
-            // Top Segmented Switch: Tugas Kamu vs Tugas Tim
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
@@ -1649,7 +1759,6 @@ class _TasksScreenState extends State<TasksScreen> {
             ),
             const SizedBox(height: 14),
 
-            // Filter Pills
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -1755,7 +1864,6 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 }
 
-// Widget Penunjang Tampilan Anggota
 class _TeamTaskCardAnggota extends StatelessWidget {
   final String title;
   final String pj;
@@ -2127,7 +2235,6 @@ class _MyTaskRevisionCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          // UPLOAD REVISI
           const Text(
             'UPLOAD REVISI',
             style: TextStyle(
@@ -2193,7 +2300,6 @@ class _MyTaskRevisionCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Catatan dari Dimas Arya
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
